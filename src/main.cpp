@@ -31,6 +31,15 @@ int main()
     const int offset = y * width + x;
     VGA[offset] = 12;
     
+    for (int i = 0; i < 256; ++i)
+    {
+        outp(0x03c8, i);
+
+        outp(0x03c9, i);
+        outp(0x03c9, 0);
+        outp(0x03c9, 0);
+    }
+    
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
