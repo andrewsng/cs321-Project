@@ -1,3 +1,5 @@
+#include "polygon.h"
+
 #include <cstdint>
 using std::uint8_t;
 #include <dos.h>
@@ -59,6 +61,11 @@ int main()
     regs.h.ah = 0x00;
     regs.h.al = 0x03;
     int86(0x10, &regs, &regs);
+    
+    const int numVertices = 3;
+    Point triangle[numVertices] = { {30, 30}, {20, 50}, {40, 40} };
+    const PointList triangleVertices{ numVertices, triangle };
+    fillConvexPolygon(triangleVertices, color, 0, 0);
     
     __djgpp_nearptr_disable();
     

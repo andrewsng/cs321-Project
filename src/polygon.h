@@ -33,7 +33,7 @@ struct ScanlineList
 };
 
 
-bool fillConvexPolygon(const PointList& vertices, int color, int xOffset, int yOffset);
+bool fillConvexPolygon(const PointList& vertexList, int color, int xOffset, int yOffset);
 
 
 #endif  // POLYGON_H
