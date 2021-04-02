@@ -6,6 +6,25 @@ using std::cerr;
 using std::vector;
 
 
+void scanEdge(int x0, int y0, int x1, int y1, bool setStart, bool skipFirst, 
+    vector<Scanline> &scanlineList)
+{
+    int dx = x1 - x0;
+    int dy = y1 - y0;
+    if (dy <= 0)
+        return;
+    float inverseSlope = float(dx) / float(dy);
+    
+    for (int y = 0 + skipFirst; y < dy; ++y)
+    {
+        if (setStart)
+            scanlineList[y].xStart = x0 + int(ceil((y-y0)*inverseSlope));
+        else
+            scanlineList[y].xEnd   = x0 + int(ceil((y-y0)*inverseSlope));
+    }
+}
+
+
 inline int indexForward(int index, int length)
 {
     return (index + 1) % length;

@@ -1,5 +1,7 @@
 #include "polygon.h"
 
+#include <iostream>
+using std::cerr;
 #include <cstdint>
 using std::uint8_t;
 #include <dos.h>
@@ -66,6 +68,11 @@ int main()
     Point triangle[numVertices] = { {30, 30}, {20, 50}, {40, 40} };
     const PointList triangleVertices{ numVertices, triangle };
     fillConvexPolygon(triangleVertices, color, 0, 0);
+    
+    float f = 1.0;
+    double d = 1.0;
+    cerr << "sizeof float: " << sizeof(f);
+    cerr << "sizeof double: " << sizeof(d);
     
     __djgpp_nearptr_disable();
     
