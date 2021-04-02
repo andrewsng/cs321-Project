@@ -2,6 +2,8 @@
 
 #include <iostream>
 using std::cerr;
+#include <vector>
+using std::vector;
 
 
 inline int indexForward(int index, int length)
@@ -66,15 +68,13 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
     
     cerr << "minPointY: " << minPointY << '\n';
     cerr << "maxPointY: " << maxPointY << '\n';
-    cerr << "minIndexL: " << minIndexL << '\n';
-    cerr << "minIndexR: " << minIndexR << '\n';
     cerr << "maxIndex: " << maxIndex << '\n';
     
     int leftEdgeDir = -1;
-    const bool topIsFlat = (vertices[minIndexL].x == vertices[minIndexL].x);
+    const bool topIsFlat = (vertices[minIndexL].x != vertices[minIndexR].x);
     if (topIsFlat)
     {
-        if (vertices[minIndexL].x > vertices[minIndexL].x)
+        if (vertices[minIndexL].x > vertices[minIndexR].x)
         {
             leftEdgeDir = 1;
             std::swap(minIndexL, minIndexR);
@@ -98,4 +98,44 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
         cerr << "prevIndex: " << prevIndex << '\n';
         cerr << "leftEdgeDir: " << leftEdgeDir << '\n';
     }
+
+    cerr << "minIndexL: " << minIndexL << '\n';
+    cerr << "minIndexR: " << minIndexR << '\n';
+    
+    const int numScanlines = maxPointY - minPointY - 1 + int(topIsFlat);
+    if (numScanlines <= 0)
+        return false;
+    const int yStart = minPointY + 1 - int(topIsFlat) + yOffset;
+
+    vector<Scanline> scanlineList(numScanlines);
+    
+    int currIndex = minIndexL;
+    int prevIndex = currIndex;
+    bool skipFirst = !topIsFlat;
+    do
+    {
+        indexMove(currIndex, vertexList.length, leftEdgeDir);
+        scanEdge(vertices[prevIndex].x + xOffset, vertices[prevIndex].y,
+                 vertices[currIndex].x + xOffset, vertices[currIndex].y,
+                 1, skipFirst, scanlineList);
+        prevIndex = currIndex;
+        skipFirst = 0;
+    } while (currIndex != maxIndex);
+    
+    currIndex = minIndexR;
+    prevIndex = currIndex;
+    skipFirst = !topIsFlat;
+    do
+    {
+        indexMove(currIndex, vertexList.length, leftEdgeDir);
+        scanEdge(vertices[prevIndex].x + xOffset - 1, vertices[prevIndex].y,
+                 vertices[currIndex].x + xOffset - 1, vertices[currIndex].y,
+                 0, skipFirst, scanlineList);
+        prevIndex = currIndex;
+        skipFirst = 0;
+    } while (currIndex != maxIndex);
+    
+    drawScanlineList(scanlineList, color);
+    
+    return true;
 }

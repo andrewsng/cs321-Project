@@ -6,29 +6,29 @@
 
 struct Point
 {
-    int x;
-    int y;
+    int x{0};
+    int y{0};
 };
 
 
 struct PointList
 {
-    int length;
+    int length{0};
     Point *points;
 };
 
 
 struct Scanline
 {
-    int xStart;
-    int xEnd;
+    int xStart{0};
+    int xEnd{0};
 };
 
 
 struct ScanlineList
 {
-    int length;
-    int yStart;
+    int length{0};
+    int yStart{0};
     Scanline *lines;
 };
 
