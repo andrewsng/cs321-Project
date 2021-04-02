@@ -4,24 +4,24 @@
 using std::cerr;
 
 
-inline void indexForward(int &index, int length)
+inline int indexForward(int index, int length)
 {
-    index = (index + 1) % length;
+    return (index + 1) % length;
 }
 
 
-inline void indexBackward(int &index, int length)
+inline int indexBackward(int index, int length)
 {
-    index = (index - 1 + length) % length;
+    return (index - 1 + length) % length;
 }
 
 
-inline void indexMove(int &index, int length, int direction)
+inline int indexMove(int index, int length, int direction)
 {
     if (direction > 0)
-        indexForward(index, length);
+        return indexForward(index, length);
     else
-        indexBackward(index, length);
+        return indexBackward(index, length);
 }
 
 
@@ -52,21 +52,50 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
         return false;
     
     int minIndexR = minIndexL;
-    while (vertices[minIndexR].y == maxPointY)
+    while (vertices[minIndexR].y == minPointY)
     {
-        indexForward(minIndexR, vertexList.length);
+        minIndexR = indexForward(minIndexR, vertexList.length);
     }
-    indexBackward(minIndexR, vertexList.length);
+    minIndexR = indexBackward(minIndexR, vertexList.length);
 
-    while (vertices[minIndexL].y == maxPointY)
+    while (vertices[minIndexL].y == minPointY)
     {
-        indexBackward(minIndexR, vertexList.length);
+        minIndexL = indexBackward(minIndexL, vertexList.length);
     }
-    indexForward(minIndexR, vertexList.length);
+    minIndexL = indexForward(minIndexL, vertexList.length);
     
     cerr << "minPointY: " << minPointY << '\n';
     cerr << "maxPointY: " << maxPointY << '\n';
     cerr << "minIndexL: " << minIndexL << '\n';
     cerr << "minIndexR: " << minIndexR << '\n';
     cerr << "maxIndex: " << maxIndex << '\n';
+    
+    int leftEdgeDir = -1;
+    const bool topIsFlat = (vertices[minIndexL].x == vertices[minIndexL].x);
+    if (topIsFlat)
+    {
+        if (vertices[minIndexL].x > vertices[minIndexL].x)
+        {
+            leftEdgeDir = 1;
+            std::swap(minIndexL, minIndexR);
+        }
+    }
+    else
+    {
+        int nextIndex = indexForward(minIndexR, vertexList.length);
+        int prevIndex = indexBackward(minIndexL, vertexList.length);
+        int dxNext = vertices[nextIndex].x - vertices[minIndexL].x;
+        int dyNext = vertices[nextIndex].y - vertices[minIndexL].y;
+        int dxPrev = vertices[prevIndex].x - vertices[minIndexL].x;
+        int dyPrev = vertices[prevIndex].y - vertices[minIndexL].y;
+        if (dxNext * dyPrev < dyNext * dxPrev)
+        {
+            leftEdgeDir = 1;
+            std::swap(minIndexL, minIndexR);
+        }
+
+        cerr << "nextIndex: " << nextIndex << '\n';
+        cerr << "prevIndex: " << prevIndex << '\n';
+        cerr << "leftEdgeDir: " << leftEdgeDir << '\n';
+    }
 }
