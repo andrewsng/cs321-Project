@@ -32,6 +32,7 @@ struct ScanlineList
     Scanline *lines;
 };
 
+void drawPixel(int x, int y, int color);
 
 bool fillConvexPolygon(const PointList& vertexList, int color, int xOffset, int yOffset);
 

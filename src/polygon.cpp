@@ -1,13 +1,14 @@
 #include "polygon.h"
 
-#include <iostream>
-using std::cerr;
 #include <vector>
 using std::vector;
+#include <cmath>
+using std::ceil;
+#include <sys/nearptr.h>
 
 
 void scanEdge(int x0, int y0, int x1, int y1, bool setStart, bool skipFirst, 
-    vector<Scanline> &scanlineList)
+    vector<Scanline> &scanlineList, int yStart)
 {
     int dx = x1 - x0;
     int dy = y1 - y0;
@@ -15,12 +16,32 @@ void scanEdge(int x0, int y0, int x1, int y1, bool setStart, bool skipFirst,
         return;
     float inverseSlope = float(dx) / float(dy);
     
-    for (int y = 0 + skipFirst; y < dy; ++y)
+    for (int y = y0 + int(skipFirst); y < y1; ++y)
     {
         if (setStart)
-            scanlineList[y].xStart = x0 + int(ceil((y-y0)*inverseSlope));
+            scanlineList[y-yStart].xStart = x0 + int(ceil((y-y0)*inverseSlope));
         else
-            scanlineList[y].xEnd   = x0 + int(ceil((y-y0)*inverseSlope));
+            scanlineList[y-yStart].xEnd   = x0 + int(ceil((y-y0)*inverseSlope));
+    }
+}
+
+
+void drawPixel(int x, int y, int color)
+{
+    static uint8_t *VGA = (uint8_t *)0xA0000 + __djgpp_conventional_base;
+    VGA[y * 320 + x] = uint8_t(color);
+}
+
+
+void drawScanlineList(const vector<Scanline> &scanlineList, int color, int yStart)
+{
+    for (int y = 0; y < scanlineList.size(); ++y)
+    {
+        const int lineY = y + yStart;
+        for (int x = scanlineList[y].xStart; x <= scanlineList[y].xEnd; ++x)
+        {
+            drawPixel(x, lineY, color);
+        }
     }
 }
 
@@ -85,10 +106,6 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
     }
     minIndexL = indexForward(minIndexL, vertexList.length);
     
-    cerr << "minPointY: " << minPointY << '\n';
-    cerr << "maxPointY: " << maxPointY << '\n';
-    cerr << "maxIndex: " << maxIndex << '\n';
-    
     int leftEdgeDir = -1;
     const bool topIsFlat = (vertices[minIndexL].x != vertices[minIndexR].x);
     if (topIsFlat)
@@ -112,15 +129,8 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
             leftEdgeDir = 1;
             std::swap(minIndexL, minIndexR);
         }
-
-        cerr << "nextIndex: " << nextIndex << '\n';
-        cerr << "prevIndex: " << prevIndex << '\n';
-        cerr << "leftEdgeDir: " << leftEdgeDir << '\n';
     }
 
-    cerr << "minIndexL: " << minIndexL << '\n';
-    cerr << "minIndexR: " << minIndexR << '\n';
-    
     const int numScanlines = maxPointY - minPointY - 1 + int(topIsFlat);
     if (numScanlines <= 0)
         return false;
@@ -133,12 +143,12 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
     bool skipFirst = !topIsFlat;
     do
     {
-        indexMove(currIndex, vertexList.length, leftEdgeDir);
+        currIndex = indexMove(currIndex, vertexList.length, leftEdgeDir);
         scanEdge(vertices[prevIndex].x + xOffset, vertices[prevIndex].y,
                  vertices[currIndex].x + xOffset, vertices[currIndex].y,
-                 1, skipFirst, scanlineList);
+                 true, skipFirst, scanlineList, yStart);
         prevIndex = currIndex;
-        skipFirst = 0;
+        skipFirst = false;
     } while (currIndex != maxIndex);
     
     currIndex = minIndexR;
@@ -146,15 +156,15 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
     skipFirst = !topIsFlat;
     do
     {
-        indexMove(currIndex, vertexList.length, leftEdgeDir);
+        currIndex = indexMove(currIndex, vertexList.length, -leftEdgeDir);
         scanEdge(vertices[prevIndex].x + xOffset - 1, vertices[prevIndex].y,
                  vertices[currIndex].x + xOffset - 1, vertices[currIndex].y,
-                 0, skipFirst, scanlineList);
+                 false, skipFirst, scanlineList, yStart);
         prevIndex = currIndex;
-        skipFirst = 0;
+        skipFirst = false;
     } while (currIndex != maxIndex);
     
-    drawScanlineList(scanlineList, color);
+    drawScanlineList(scanlineList, color, yStart);
     
     return true;
 }

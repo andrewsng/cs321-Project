@@ -21,58 +21,27 @@ int main()
     
     const int width = 320;
     const int height = 200;
-    
-    const int color = 10;
-    regs.h.ah = 0x0C;
-    regs.h.al = color;
-    regs.x.cx = width / 2;
-    regs.x.dx = height / 2;
-    int86(0x10, &regs, &regs);
-    
-    uint8_t *VGA = (uint8_t *)0xA0000 + __djgpp_conventional_base;
-    const int x = 200;
-    const int y = height / 2;
-    const int offset = y * width + x;
-    VGA[offset] = 12;
-    
-    for (int i = 0; i < 256; ++i)
-    {
-        outp(0x03c8, i);
+    const int green  = 10;
+    const int red    = 12;
+    const int purple = 13;
 
-        outp(0x03c9, i);
-        outp(0x03c9, 0);
-        outp(0x03c9, 0);
-    }
     
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
-        {
-            const int offset = y * width + x;
-            VGA[offset] = x % 256;
-        }
-    }
+    const int numVertices = 3;
+    Point v1[numVertices] = { {100, 50}, {50, 150}, {150, 100} };
+    const PointList t1{ numVertices, v1 };
+    Point v2[numVertices] = { {100, 50}, {125, 25}, {150, 100} };
+    const PointList t2{ numVertices, v2 };
+    drawPixel(100,  50, red);
+    drawPixel( 50, 150, red);
+    drawPixel(150, 100, red);
+    fillConvexPolygon(t1, green, 0, 0);
+    fillConvexPolygon(t2, purple, 0, 0);
     
-    // wait ~1 second
-    int sum = 0;
-    for (int i = 0; i < 100000000; ++i)
-    {
-        sum += i;
-    }
+    getchar();
 
     regs.h.ah = 0x00;
     regs.h.al = 0x03;
     int86(0x10, &regs, &regs);
-    
-    const int numVertices = 3;
-    Point triangle[numVertices] = { {30, 30}, {20, 50}, {40, 40} };
-    const PointList triangleVertices{ numVertices, triangle };
-    fillConvexPolygon(triangleVertices, color, 0, 0);
-    
-    float f = 1.0;
-    double d = 1.0;
-    cerr << "sizeof float: " << sizeof(f);
-    cerr << "sizeof double: " << sizeof(d);
     
     __djgpp_nearptr_disable();
     
