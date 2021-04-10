@@ -8,6 +8,28 @@ using std::uint16_t;
 #include <sys/nearptr.h>
 
 
+void setVideoMode(uint8_t mode)
+{
+    union REGS regs;
+    regs.h.ah = 0x00;
+    regs.h.al = mode;
+    int86(0x10, &regs, &regs);
+}
+
+
+void setModeText()
+{
+    setVideoMode(0x03);
+}
+
+
+// setMode13h (320x200, 256-color)
+void setMode13h()
+{
+    setVideoMode(0x13);
+}
+
+
 // setModeX (320x240, 256-color)
 // Pre:
 //   __djgpp_nearptr_enable() has been successfully called.
@@ -25,10 +47,7 @@ void setModeX()
         0xDF12, 0x0014, 0xE715, 0x0616, 0xE317
     };
 
-    union REGS regs;
-    regs.h.ah = 0x00;
-    regs.h.al = 0x13;
-    int86(0x10, &regs, &regs);
+    setMode13h();
     
     outportw(SC_INDEX, 0x0604);
     outportw(SC_INDEX, 0x0100);

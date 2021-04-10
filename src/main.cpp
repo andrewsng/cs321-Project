@@ -14,10 +14,6 @@ int main()
     if (!__djgpp_nearptr_enable())
         return -1;
 
-    union REGS regs;
-    
-    setModeX();
-    
     const int width = 320;
     const int height = 200;
     const int green  = 10;
@@ -33,14 +29,20 @@ int main()
     drawPixel(100,  50, red);
     drawPixel( 50, 150, red);
     drawPixel(150, 100, red);
+
+
+    setMode13h();
+    
     fillConvexPolygon(t1, green, 0, 0);
     fillConvexPolygon(t2, purple, 0, 0);
-    
     getchar();
 
-    regs.h.ah = 0x00;
-    regs.h.al = 0x03;
-    int86(0x10, &regs, &regs);
+    setModeX();
+    fillConvexPolygon(t1, green, 0, 0);
+    fillConvexPolygon(t2, purple, 0, 0);
+    getchar();
+
+    setModeText();
     
     __djgpp_nearptr_disable();
     

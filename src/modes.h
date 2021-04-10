@@ -2,6 +2,10 @@
 #define MODES_H
 
 
+void setModeText();
+
+void setMode13h();
+
 void setModeX();
 
 
