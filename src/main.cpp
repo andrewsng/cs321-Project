@@ -1,4 +1,5 @@
 #include "polygon.h"
+#include "modes.h"
 
 #include <iostream>
 using std::cerr;
@@ -15,9 +16,7 @@ int main()
 
     union REGS regs;
     
-    regs.h.ah = 0x00;
-    regs.h.al = 0x13;
-    int86(0x10, &regs, &regs);
+    setModeX();
     
     const int width = 320;
     const int height = 200;
