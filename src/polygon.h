@@ -34,6 +34,8 @@ struct ScanlineList
 
 void drawPixel(int x, int y, int color);
 
+void drawPixelX(int x, int y, unsigned int pageBase, int color);
+
 bool fillConvexPolygon(const PointList& vertexList, int color, int xOffset, int yOffset);
 
 
