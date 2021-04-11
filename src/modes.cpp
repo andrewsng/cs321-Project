@@ -1,3 +1,4 @@
+#include "vgaconst.h"
 #include "modes.h"
 
 #include <cstdint>
@@ -23,9 +24,16 @@ void setModeText()
 }
 
 
+unsigned int SCREEN_WIDTH  = 0;
+unsigned int SCREEN_HEIGHT = 0;
+
+
 // setMode13h (320x200, 256-color)
 void setMode13h()
 {
+    SCREEN_WIDTH  = 320;
+    SCREEN_HEIGHT = 200;
+
     setVideoMode(0x13);
 }
 
@@ -35,12 +43,9 @@ void setMode13h()
 //   __djgpp_nearptr_enable() has been successfully called.
 void setModeX()
 {
-    const uint16_t SC_INDEX   = 0x03C4;
-    const uint16_t CRTC_INDEX = 0x03D4;
-    const uint16_t CRTC_DATA  = 0x03D5;
-    const uint16_t MISC_INDEX = 0x03C2;
-    const uint16_t SCREEN_SEG = 0xA000;
-    
+    SCREEN_WIDTH  = 320;
+    SCREEN_HEIGHT = 240;
+
     const int numCRTParms = 10;
     const uint16_t CRTParms[numCRTParms] = {
         0x0D06, 0x3E07, 0x4109, 0xEA10, 0xAC11,
@@ -64,6 +69,6 @@ void setModeX()
     
     outportw(SC_INDEX, 0x0F02);
 
-    uint8_t *VGA = (uint8_t *)0xA0000 + __djgpp_conventional_base;
-    std::memset(VGA, 0, 320*240);
+    uint8_t *VGA = (uint8_t *)SCREEN_ADR + __djgpp_conventional_base;
+    std::memset(VGA, 0, SCREEN_WIDTH*SCREEN_HEIGHT);
 }

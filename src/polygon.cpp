@@ -1,3 +1,4 @@
+#include "vgaconst.h"
 #include "polygon.h"
 
 #include <vector>
@@ -29,8 +30,8 @@ void scanEdge(int x0, int y0, int x1, int y1, bool setStart, bool skipFirst,
 
 void drawPixel(int x, int y, int color)
 {
-    static uint8_t *VGA = (uint8_t *)0xA0000 + __djgpp_conventional_base;
-    VGA[y * 320 + x] = uint8_t(color);
+    static uint8_t *VGA = (uint8_t *)SCREEN_ADR + __djgpp_conventional_base;
+    VGA[y * SCREEN_WIDTH + x] = uint8_t(color);
 }
 
 
@@ -38,10 +39,8 @@ void drawPixel(int x, int y, int color)
 // Extremely slow pixel drawing (bit ops + 16-bit out) to demonstrate Mode X memory.
 void drawPixelX(int x, int y, unsigned int pageBase, int color)
 {
-    static uint8_t *VGA = (uint8_t *)0xA0000 + __djgpp_conventional_base;
-    const uint16_t SC_INDEX = 0x03C4;
-    const uint8_t MAP_MASK = 0x02;
-    int offset = y * 80 + (x >> 2) + pageBase;
+    static uint8_t *VGA = (uint8_t *)SCREEN_ADR + __djgpp_conventional_base;
+    int offset = y * X_WIDTH_BYTES + (x >> 2) + pageBase;
     int plane = (0x0100 << (x & 0b11)) + MAP_MASK;
     outportw(SC_INDEX, plane);
     VGA[offset] = uint8_t(color);

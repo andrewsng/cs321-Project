@@ -1,3 +1,4 @@
+#include "vgaconst.h"
 #include "polygon.h"
 #include "modes.h"
 
@@ -14,8 +15,6 @@ int main()
     if (!__djgpp_nearptr_enable())
         return -1;
 
-    const int width = 320;
-    const int height = 200;
     const int green  = 10;
     const int red    = 12;
     const int purple = 13;
