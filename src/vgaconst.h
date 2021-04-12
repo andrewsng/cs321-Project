@@ -9,7 +9,6 @@ extern unsigned int SCREEN_HEIGHT;
 
 const unsigned int X_WIDTH_BYTES = 80;
 const uint16_t     SC_INDEX      = 0x03C4;
-const uint16_t     SC_INDEX      = 0x03C4;
 const uint16_t     CRTC_INDEX    = 0x03D4;
 const uint16_t     CRTC_DATA     = 0x03D5;
 const uint16_t     MISC_INDEX    = 0x03C2;
