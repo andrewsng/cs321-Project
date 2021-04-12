@@ -46,8 +46,8 @@ void setModeX()
     SCREEN_WIDTH  = 320;
     SCREEN_HEIGHT = 240;
 
-    const int numCRTParms = 10;
-    const uint16_t CRTParms[numCRTParms] = {
+    static const int numCRTParms = 10;
+    static const uint16_t CRTParms[numCRTParms] = {
         0x0D06, 0x3E07, 0x4109, 0xEA10, 0xAC11,
         0xDF12, 0x0014, 0xE715, 0x0616, 0xE317
     };
