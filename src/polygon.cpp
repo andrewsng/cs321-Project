@@ -148,6 +148,75 @@ void drawScanlineList(const vector<Scanline> &scanlineList, int color, int yStar
 }
 
 
+// TEMPORARY VALUES
+int clipMinX = 0, clipMaxX = 320, clipMinY = 0, clipMaxY = 240;
+int currentPageBase = 0;
+void drawScanlineListX(const vector<Scanline> &scanlineList, int color, int yStart)
+{
+    static const uint8_t leftClipPlaneMask[4]  = { 0x0F, 0x0E, 0x0C, 0x08 };
+    static const uint8_t rightClipPlaneMask[4] = { 0x01, 0x03, 0x07, 0x0F };
+
+    outportb(SC_INDEX, MAP_MASK);
+    uint8_t *screenPtr = (uint8_t *)SCREEN_ADR + __djgpp_conventional_base;
+    
+    int yClipped = yStart;
+    int size = scanlineList.size();
+    if (yClipped < clipMinY)
+    {
+        size -= (clipMinY - yClipped);
+        yClipped = clipMinY;
+    }
+    if (yClipped + size > clipMaxY)
+    {
+        size -= (yClipped + size - clipMaxY);
+    }
+    if (size <= 0)
+        return;
+    
+    screenPtr += yClipped * X_WIDTH_BYTES + currentPageBase;
+    for (int y = yClipped - yStart; y < yClipped - yStart + size; ++y)
+    {
+        int xStart = scanlineList[y].xStart;
+        if (xStart < clipMinX)
+            xStart = clipMinX;
+
+        int xEnd = scanlineList[y].xEnd;
+        if (xEnd >= clipMaxX)
+            xEnd = clipMaxX - 1;
+        
+        if (xEnd < xStart)
+        {
+            screenPtr += X_WIDTH_BYTES;
+            continue;
+        }
+
+        uint8_t *offset = screenPtr + (xStart >> 2);
+        uint8_t leftMask = leftClipPlaneMask[xStart & 0x03];
+        uint8_t rightMask = rightClipPlaneMask[xEnd & 0x03];
+        int numAddresses = (xEnd - (xStart & ~0b011)) >> 2;
+        if (numAddresses == 0)
+            leftMask &= rightMask;
+        
+        outportb(SC_INDEX+1, leftMask);
+        *offset++ = color;
+
+        --numAddresses;
+        if (numAddresses >= 0)
+        {
+            if (numAddresses > 0)
+            {
+                outportb(SC_INDEX+1, 0x0F);
+                memset(offset, color, numAddresses);
+            }
+            outportb(SC_INDEX+1, rightMask);
+            *(offset + numAddresses) = color;
+        }
+        
+        screenPtr += X_WIDTH_BYTES;
+    }
+}
+
+
 inline int indexForward(int index, int length)
 {
     return (index + 1) % length;
@@ -246,8 +315,8 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
     do
     {
         currIndex = indexMove(currIndex, vertexList.length, leftEdgeDir);
-        scanEdge(vertices[prevIndex].x + xOffset, vertices[prevIndex].y,
-                 vertices[currIndex].x + xOffset, vertices[currIndex].y,
+        scanEdge(vertices[prevIndex].x + xOffset, vertices[prevIndex].y + yOffset,
+                 vertices[currIndex].x + xOffset, vertices[currIndex].y + yOffset,
                  true, skipFirst, scanlineList, yStart);
         prevIndex = currIndex;
         skipFirst = false;
@@ -259,14 +328,14 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
     do
     {
         currIndex = indexMove(currIndex, vertexList.length, -leftEdgeDir);
-        scanEdge(vertices[prevIndex].x + xOffset - 1, vertices[prevIndex].y,
-                 vertices[currIndex].x + xOffset - 1, vertices[currIndex].y,
+        scanEdge(vertices[prevIndex].x + xOffset - 1, vertices[prevIndex].y + yOffset,
+                 vertices[currIndex].x + xOffset - 1, vertices[currIndex].y + yOffset,
                  false, skipFirst, scanlineList, yStart);
         prevIndex = currIndex;
         skipFirst = false;
     } while (currIndex != maxIndex);
     
-    drawScanlineList(scanlineList, color, yStart);
+    drawScanlineListX(scanlineList, color, yStart);
     
     return true;
 }
