@@ -5,6 +5,8 @@
 using std::vector;
 #include <cmath>
 using std::ceil;
+#include <cstring>
+using std::memset;
 #include <dos.h>
 #include <sys/nearptr.h>
 
@@ -13,17 +15,102 @@ void scanEdge(int x0, int y0, int x1, int y1, bool setStart, bool skipFirst,
     vector<Scanline> &scanlineList, int yStart)
 {
     int dx = x1 - x0;
-    int dy = y1 - y0;
-    if (dy <= 0)
-        return;
-    float inverseSlope = float(dx) / float(dy);
+    int advanceAmount = dx > 0 ? 1 : -1;
     
-    for (int y = y0 + int(skipFirst); y < y1; ++y)
+    int height = y1 - y0;
+    if (height <= 0)
+        return;
+    
+    int width = std::abs(dx);
+    if (width == 0)
     {
-        if (setStart)
-            scanlineList[y-yStart].xStart = x0 + int(ceil((y-y0)*inverseSlope));
-        else
-            scanlineList[y-yStart].xEnd   = x0 + int(ceil((y-y0)*inverseSlope));
+        for (int y = y0 + int(skipFirst); y < y1; ++y)
+        {
+            if (setStart)
+                scanlineList[y-yStart].xStart = x0;
+            else
+                scanlineList[y-yStart].xEnd   = x0;
+        }
+    }
+    else if (width == height)
+    {
+        if (skipFirst)
+            x0 += advanceAmount;
+
+        for (int y = y0 + int(skipFirst); y < y1; ++y)
+        {
+            if (setStart)
+                scanlineList[y-yStart].xStart = x0;
+            else
+                scanlineList[y-yStart].xEnd   = x0;
+
+            x0 += advanceAmount;
+        }
+    }
+    else if (height > width)
+    {
+        int errorTerm = 0;
+        if (dx < 0)
+            errorTerm = -height + 1;
+        if (skipFirst)
+        {
+            errorTerm += width;
+            if (errorTerm > 0)
+            {
+                x0 += advanceAmount;
+                errorTerm -= height;
+            }
+        }
+
+        for (int y = y0 + int(skipFirst); y < y1; ++y)
+        {
+            if (setStart)
+                scanlineList[y-yStart].xStart = x0;
+            else
+                scanlineList[y-yStart].xEnd   = x0;
+            
+            errorTerm += width;
+            if (errorTerm > 0)
+            {
+                x0 += advanceAmount;
+                errorTerm -= height;
+            }
+        }
+    }
+    else
+    {
+        int xMajorAdvanceAmount = (width / height) * advanceAmount;
+        int errorTermAdvance = width % height;
+        
+        int errorTerm = 0;
+        if (dx < 0)
+            errorTerm = -height + 1;
+        if (skipFirst)
+        {
+            x0 += xMajorAdvanceAmount;
+            errorTerm += errorTermAdvance;
+            if (errorTerm > 0)
+            {
+                x0 += advanceAmount;
+                errorTerm -= height;
+            }
+        }
+
+        for (int y = y0 + int(skipFirst); y < y1; ++y)
+        {
+            if (setStart)
+                scanlineList[y-yStart].xStart = x0;
+            else
+                scanlineList[y-yStart].xEnd   = x0;
+            
+            x0 += xMajorAdvanceAmount;
+            errorTerm += errorTermAdvance;
+            if (errorTerm > 0)
+            {
+                x0 += advanceAmount;
+                errorTerm -= height;
+            }
+        }
     }
 }
 
@@ -49,13 +136,14 @@ void drawPixelX(int x, int y, unsigned int pageBase, int color)
 
 void drawScanlineList(const vector<Scanline> &scanlineList, int color, int yStart)
 {
+    uint8_t *screenPtr = (uint8_t *)SCREEN_ADR + __djgpp_conventional_base;
+    screenPtr += yStart * SCREEN_WIDTH;
     for (int y = 0; y < scanlineList.size(); ++y)
     {
-        const int lineY = y + yStart;
-        for (int x = scanlineList[y].xStart; x <= scanlineList[y].xEnd; ++x)
-        {
-            drawPixel(x, lineY, color);
-        }
+        int width = scanlineList[y].xEnd - scanlineList[y].xStart + 1;
+        if (width > 0)
+            memset(screenPtr + scanlineList[y].xStart, color, width);
+        screenPtr += SCREEN_WIDTH;
     }
 }
 
