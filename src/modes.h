@@ -8,5 +8,7 @@ void setMode13h();
 
 void setModeX();
 
+void showPage(uint16_t startOffset);
+
 
 #endif  // MODES_H

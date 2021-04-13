@@ -15,6 +15,8 @@ using std::uint8_t;
 #include <sys/nearptr.h>
 
 
+unsigned int currentPageBase = 0;
+
 int main()
 {
     if (!__djgpp_nearptr_enable())
@@ -41,8 +43,6 @@ int main()
     int displayedPage = 0;
     int nonDisplayedPage = 0;
 
-    setModeX();
-    
     vector<Vec4> testPoly = {
         {-30, -15, 0, 1}, {0, 15, 0, 1}, {10 ,-5, 0, 1}
     };
@@ -53,6 +53,10 @@ int main()
     Mat4 transform{};
     float rotation = M_PI / 60.0f;
     bool done = false;
+
+    setModeX();
+    showPage(pageStartOffsets[displayedPage]);
+    
     do {
         worldTransform[0][0] = cosf(rotation);
         worldTransform[2][2] = worldTransform[0][0];
@@ -61,10 +65,15 @@ int main()
 
         transform = viewTransform * worldTransform;
         
+        nonDisplayedPage = displayedPage ^ 1;
+        currentPageBase = pageStartOffsets[nonDisplayedPage];
 
         fillConvexPolygon(screenRect, 0, 0, 0);
         
         transformAndDrawPoly(transform, testPoly, testPoly.size(), 9);
+        
+        displayedPage = nonDisplayedPage;
+        showPage(displayedPage);
         
         rotation += (M_PI / 30.0f);
         if (rotation >= (2 * M_PI))
