@@ -1,5 +1,6 @@
 #include "vgaconst.h"
 #include "modes.h"
+#include "polygon.h"
 
 #include <cstdint>
 using std::uint8_t;
@@ -28,11 +29,21 @@ unsigned int SCREEN_WIDTH  = 0;
 unsigned int SCREEN_HEIGHT = 0;
 
 
+void setClipBounds()
+{
+    clipMinX = 0;
+    clipMaxX = SCREEN_WIDTH;
+    clipMinY = 0;
+    clipMaxY = SCREEN_HEIGHT;
+}
+
+
 // setMode13h (320x200, 256-color)
 void setMode13h()
 {
     SCREEN_WIDTH  = 320;
     SCREEN_HEIGHT = 200;
+    setClipBounds();
 
     setVideoMode(0x13);
 }
@@ -53,6 +64,7 @@ void setModeX()
 
     SCREEN_WIDTH  = 320;
     SCREEN_HEIGHT = 240;
+    setClipBounds();
 
     
     outportw(SC_INDEX, 0x0604);

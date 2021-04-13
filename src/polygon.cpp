@@ -148,9 +148,6 @@ void drawScanlineList(const vector<Scanline> &scanlineList, int color, int yStar
 }
 
 
-// TEMPORARY VALUES
-int clipMinX = 0, clipMaxX = 320, clipMinY = 0, clipMaxY = 240;
-extern unsigned int currentPageBase;
 void drawScanlineListX(const vector<Scanline> &scanlineList, int color, int yStart)
 {
     static const uint8_t leftClipPlaneMask[4]  = { 0x0F, 0x0E, 0x0C, 0x08 };

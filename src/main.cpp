@@ -12,6 +12,10 @@ using std::uint8_t;
 
 
 unsigned int currentPageBase = 0;
+int clipMinX = 0;
+int clipMaxX = 0;
+int clipMinY = 0;
+int clipMaxY = 0;
 
 int main()
 {

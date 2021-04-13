@@ -6,6 +6,13 @@
 #include <vector>
 
 
+extern int clipMinX;
+extern int clipMaxX;
+extern int clipMinY;
+extern int clipMaxY;
+extern unsigned int currentPageBase;
+
+
 struct Point
 {
     int x{0};
