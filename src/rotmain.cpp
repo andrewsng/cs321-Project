@@ -41,7 +41,7 @@ int main()
     };
     
     const unsigned int pageStartOffsets[2] = {
-        0, long(SCREEN_HEIGHT * SCREEN_WIDTH / 4)
+        0, SCREEN_HEIGHT * SCREEN_WIDTH / 4
     };
     
     int displayedPage = 0;
