@@ -1,7 +1,7 @@
 #include "vgaconst.h"
+#include "math3d.h"
 #include "polygon.h"
 
-#include <vector>
 using std::vector;
 #include <cmath>
 using std::ceil;
@@ -338,4 +338,24 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
     drawScanlineListX(scanlineList, color, yStart);
     
     return true;
+}
+
+
+void transformAndDrawPoly(const Mat4 &transform, const vector<Vec4> &poly, int polyLength, int color)
+{
+    Point projectedPoly[4];
+
+    for (int i = 0; i < polyLength; ++i)
+    {
+        Vec4 transformed = transform * poly[i];
+
+        const float projectionRatio = -2.0f;
+        projectedPoly[i].x = int(transformed[0] / transformed[2]
+            * projectionRatio * (SCREEN_WIDTH / 2.0f) + 0.5f) + (SCREEN_WIDTH / 2);
+        projectedPoly[i].y = int(transformed[1] / transformed[2] * -1.0f
+            * projectionRatio * (SCREEN_WIDTH / 2.0f) + 0.5f) + (SCREEN_HEIGHT / 2);
+    }
+    
+    const PointList vertices{ polyLength, projectedPoly };
+    fillConvexPolygon(vertices, color, 0, 0);
 }

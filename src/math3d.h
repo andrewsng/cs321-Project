@@ -53,7 +53,7 @@ private:
 };
 
 
-Vec4 operator*(const Mat4 &lhs, const Vec4 &rhs)
+inline Vec4 operator*(const Mat4 &lhs, const Vec4 &rhs)
 {
     Vec4 result{};
     for (int i = 0; i < 4; ++i)
@@ -67,7 +67,7 @@ Vec4 operator*(const Mat4 &lhs, const Vec4 &rhs)
 }
 
 
-Mat4 operator*(const Mat4 &lhs, const Mat4 &rhs)
+inline Mat4 operator*(const Mat4 &lhs, const Mat4 &rhs)
 {
     Mat4 result{};
     for (int i = 0; i < 4; ++i)
