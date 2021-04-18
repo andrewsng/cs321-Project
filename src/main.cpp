@@ -49,12 +49,12 @@ int main()
         nonDisplayedPage = displayedPage ^ 1;
         currentPageBase = pageStartOffsets[nonDisplayedPage];
         
-        const vector<Point> r0{ {0, 0}, {0, 240}, {320, 240}, {320, 0} };
+        const Polygon2D r0{ {0, 0}, {0, 240}, {320, 240}, {320, 0} };
         fillConvexPolygon(r0, 0, 0, 0);
 
         const int numVertices = 3;
-        const vector<Point> t1{ {100, 50}, {50, 150}, {150, 100} };
-        const vector<Point> t2{ {100, 50}, {125, 25}, {150, 100} };
+        const Polygon2D t1{ {100, 50}, {50, 150}, {150, 100} };
+        const Polygon2D t2{ {100, 50}, {125, 25}, {150, 100} };
         int dy = 100 * std::sin(i * 3.14159265358979 / 180.);
 
         fillConvexPolygon(t1, green, dy, dy);

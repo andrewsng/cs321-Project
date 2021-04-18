@@ -51,7 +51,7 @@ int main()
         {-30, -15, 0, 1}, {0, 15, 0, 1}, {10 ,-5, 0, 1}
     };
 
-    const vector<Point> screenRect{ {-10, -10}, {-10, 250}, {330, 250}, {330, -10} };
+    const Polygon2D screenRect{ {-10, -10}, {-10, 250}, {330, 250}, {330, -10} };
     
     Mat4 transform{};
     float rotation = M_PI / 60.0f;
