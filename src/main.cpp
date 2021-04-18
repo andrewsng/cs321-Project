@@ -1,5 +1,6 @@
 #include "vgaconst.h"
 #include "polygon.h"
+#include "polyfill.h"
 #include "modes.h"
 
 #include <iostream>

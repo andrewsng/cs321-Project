@@ -1,6 +1,6 @@
 #include "vgaconst.h"
 #include "modes.h"
-#include "polygon.h"
+#include "polyfill.h"
 
 #include <cstdint>
 using std::uint8_t;
