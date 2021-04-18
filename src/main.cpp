@@ -4,6 +4,8 @@
 
 #include <iostream>
 using std::cerr;
+#include <vector>
+using std::vector;
 #include <cstdint>
 using std::uint8_t;
 #include <cmath>
@@ -47,15 +49,12 @@ int main()
         nonDisplayedPage = displayedPage ^ 1;
         currentPageBase = pageStartOffsets[nonDisplayedPage];
         
-        Point v3[4] = { {0, 0}, {0, 240}, {320, 240}, {320, 0} };
-        const PointList r0{ 4, v3 };
+        const vector<Point> r0{ {0, 0}, {0, 240}, {320, 240}, {320, 0} };
         fillConvexPolygon(r0, 0, 0, 0);
 
         const int numVertices = 3;
-        Point v1[numVertices] = { {100, 50}, {50, 150}, {150, 100} };
-        const PointList t1{ numVertices, v1 };
-        Point v2[numVertices] = { {100, 50}, {125, 25}, {150, 100} };
-        const PointList t2{ numVertices, v2 };
+        const vector<Point> t1{ {100, 50}, {50, 150}, {150, 100} };
+        const vector<Point> t2{ {100, 50}, {125, 25}, {150, 100} };
         int dy = 100 * std::sin(i * 3.14159265358979 / 180.);
 
         fillConvexPolygon(t1, green, dy, dy);

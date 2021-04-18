@@ -51,8 +51,7 @@ int main()
         {-30, -15, 0, 1}, {0, 15, 0, 1}, {10 ,-5, 0, 1}
     };
 
-    Point corners[4] = { {-10, -10}, {-10, 250}, {330, 250}, {330, -10} };
-    const PointList screenRect{ 4, corners };
+    const vector<Point> screenRect{ {-10, -10}, {-10, 250}, {330, 250}, {330, -10} };
     
     Mat4 transform{};
     float rotation = M_PI / 60.0f;
@@ -74,7 +73,7 @@ int main()
 
         fillConvexPolygon(screenRect, 0, 0, 0);
         
-        transformAndDrawPoly(transform, testPoly, testPoly.size(), 9);
+        transformAndDrawPoly(transform, testPoly, 9);
         
         displayedPage = nonDisplayedPage;
         showPage(displayedPage);

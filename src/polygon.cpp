@@ -3,6 +3,7 @@
 #include "polygon.h"
 
 using std::vector;
+#include <algorithm>
 #include <cmath>
 using std::ceil;
 #include <cstring>
@@ -214,106 +215,112 @@ void drawScanlineListX(const vector<Scanline> &scanlineList, int color, int ySta
 }
 
 
-inline int indexForward(int index, int length)
+vector<Point>::const_iterator nextPointIter(vector<Point>::const_iterator iter,
+    const vector<Point> &vertices)
 {
-    return (index + 1) % length;
+    ++iter;
+    if (iter == vertices.end())
+        return vertices.begin();
+    return iter;
 }
 
 
-inline int indexBackward(int index, int length)
+vector<Point>::const_iterator prevPointIter(vector<Point>::const_iterator iter,
+    const vector<Point> &vertices)
 {
-    return (index - 1 + length) % length;
+    if (iter == vertices.begin())
+        return vertices.end() - 1;
+    return iter - 1;
 }
 
 
-inline int indexMove(int index, int length, int direction)
+vector<Point>::const_iterator shiftPointIter(vector<Point>::const_iterator iter,
+    const vector<Point> &vertices, int direction)
 {
     if (direction > 0)
-        return indexForward(index, length);
-    else
-        return indexBackward(index, length);
+        return nextPointIter(iter, vertices);
+    return prevPointIter(iter, vertices);
 }
 
 
-bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int yOffset)
+bool isTopEdgeFlat(vector<Point>::const_iterator leftIter,
+    vector<Point>::const_iterator rightIter)
 {
-    if (vertexList.length == 0)
-        return false;
+    return leftIter->x != rightIter->x;
+}
 
-    const Point *vertices = vertexList.points;
-    
-    int minIndexL = 0, maxIndex = 0;
-    int minPointY = vertices[minIndexL].y;
-    int maxPointY = vertices[maxIndex].y;
-    for (int i = 1; i < vertexList.length; ++i)
-    {
-        if (vertices[i].y < minPointY)
-        {
-            minIndexL = i;
-            minPointY = vertices[minIndexL].y;
-        }
-        else if (vertices[i].y > maxPointY)
-        {
-            maxIndex = i;
-            maxPointY = vertices[maxIndex].y;
-        }
-    }
-    if (minPointY == maxPointY)
-        return false;
-    
-    int minIndexR = minIndexL;
-    while (vertices[minIndexR].y == minPointY)
-    {
-        minIndexR = indexForward(minIndexR, vertexList.length);
-    }
-    minIndexR = indexBackward(minIndexR, vertexList.length);
 
-    while (vertices[minIndexL].y == minPointY)
+int leftEdgeDirection(vector<Point>::const_iterator leftIter,
+    vector<Point>::const_iterator rightIter, const vector<Point> &vertices)
+{
+    if (isTopEdgeFlat(leftIter, rightIter))
     {
-        minIndexL = indexBackward(minIndexL, vertexList.length);
-    }
-    minIndexL = indexForward(minIndexL, vertexList.length);
-    
-    int leftEdgeDir = -1;
-    const bool topIsFlat = (vertices[minIndexL].x != vertices[minIndexR].x);
-    if (topIsFlat)
-    {
-        if (vertices[minIndexL].x > vertices[minIndexR].x)
+        if (leftIter->x > rightIter->x)
         {
-            leftEdgeDir = 1;
-            std::swap(minIndexL, minIndexR);
+            return 1;
         }
     }
     else
     {
-        int nextIndex = indexForward(minIndexR, vertexList.length);
-        int prevIndex = indexBackward(minIndexL, vertexList.length);
-        int dxNext = vertices[nextIndex].x - vertices[minIndexL].x;
-        int dyNext = vertices[nextIndex].y - vertices[minIndexL].y;
-        int dxPrev = vertices[prevIndex].x - vertices[minIndexL].x;
-        int dyPrev = vertices[prevIndex].y - vertices[minIndexL].y;
+        auto nextIndex = nextPointIter(rightIter, vertices);
+        auto prevIndex = prevPointIter(leftIter, vertices);
+        int dxNext = nextIndex->x - leftIter->x;
+        int dyNext = nextIndex->y - leftIter->y;
+        int dxPrev = prevIndex->x - leftIter->x;
+        int dyPrev = prevIndex->y - leftIter->y;
         if (dxNext * dyPrev < dyNext * dxPrev)
         {
-            leftEdgeDir = 1;
-            std::swap(minIndexL, minIndexR);
+            return 1;
         }
     }
+    return -1;
+}
 
-    const int numScanlines = maxPointY - minPointY - 1 + int(topIsFlat);
+
+bool fillConvexPolygon(const vector<Point> &vertices, int color, int xOffset, int yOffset)
+{
+    if (vertices.empty())
+        return false;
+    
+    auto [minIndexL, maxIndex] = std::minmax_element(vertices.begin(), vertices.end(),
+        [](const Point &a, const Point &b) {
+            return a.y < b.y;
+        });
+
+    auto minY = minIndexL->y;
+    auto maxY = maxIndex->y;
+    if (minY == maxY)
+        return false;
+    
+    auto minIndexR = minIndexL;
+    while (nextPointIter(minIndexR, vertices)->y == minY)
+    {
+        minIndexR = nextPointIter(minIndexR, vertices);
+    }
+
+    while (prevPointIter(minIndexL, vertices)->y == minY)
+    {
+        minIndexL = prevPointIter(minIndexL, vertices);
+    }
+    
+    int leftEdgeDir = leftEdgeDirection(minIndexL, minIndexR, vertices);
+    const bool topIsFlat = isTopEdgeFlat(minIndexL, minIndexR);
+
+    const int numScanlines = maxY - minY - 1 + int(topIsFlat);
     if (numScanlines <= 0)
         return false;
-    const int yStart = minPointY + 1 - int(topIsFlat) + yOffset;
+    const int yStart = minY + 1 - int(topIsFlat) + yOffset;
 
     vector<Scanline> scanlineList(numScanlines);
     
-    int currIndex = minIndexL;
-    int prevIndex = currIndex;
+    auto currIndex = minIndexL;
+    auto prevIndex = currIndex;
     bool skipFirst = !topIsFlat;
     do
     {
-        currIndex = indexMove(currIndex, vertexList.length, leftEdgeDir);
-        scanEdge(vertices[prevIndex].x + xOffset, vertices[prevIndex].y + yOffset,
-                 vertices[currIndex].x + xOffset, vertices[currIndex].y + yOffset,
+        currIndex = shiftPointIter(currIndex, vertices, leftEdgeDir);
+        scanEdge(prevIndex->x + xOffset, prevIndex->y + yOffset,
+                 currIndex->x + xOffset, currIndex->y + yOffset,
                  true, skipFirst, scanlineList, yStart);
         prevIndex = currIndex;
         skipFirst = false;
@@ -324,9 +331,9 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
     skipFirst = !topIsFlat;
     do
     {
-        currIndex = indexMove(currIndex, vertexList.length, -leftEdgeDir);
-        scanEdge(vertices[prevIndex].x + xOffset - 1, vertices[prevIndex].y + yOffset,
-                 vertices[currIndex].x + xOffset - 1, vertices[currIndex].y + yOffset,
+        currIndex = shiftPointIter(currIndex, vertices, -leftEdgeDir);
+        scanEdge(prevIndex->x + xOffset - 1, prevIndex->y + yOffset,
+                 currIndex->x + xOffset - 1, currIndex->y + yOffset,
                  false, skipFirst, scanlineList, yStart);
         prevIndex = currIndex;
         skipFirst = false;
@@ -338,11 +345,11 @@ bool fillConvexPolygon(const PointList &vertexList, int color, int xOffset, int 
 }
 
 
-void transformAndDrawPoly(const Mat4 &transform, const vector<Vec4> &poly, int polyLength, int color)
+void transformAndDrawPoly(const Mat4 &transform, const vector<Vec4> &poly, int color)
 {
-    Point projectedPoly[4];
+    vector<Point> projectedPoly(poly.size());
 
-    for (int i = 0; i < polyLength; ++i)
+    for (int i = 0; i < projectedPoly.size(); ++i)
     {
         Vec4 transformed = transform * poly[i];
 
@@ -353,6 +360,5 @@ void transformAndDrawPoly(const Mat4 &transform, const vector<Vec4> &poly, int p
             * projectionRatio * (SCREEN_WIDTH / 2.0f) + 0.5f) + (SCREEN_HEIGHT / 2);
     }
     
-    const PointList vertices{ polyLength, projectedPoly };
-    fillConvexPolygon(vertices, color, 0, 0);
+    fillConvexPolygon(projectedPoly, color, 0, 0);
 }
