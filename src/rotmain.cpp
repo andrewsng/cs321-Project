@@ -1,3 +1,11 @@
+// rotmain.cpp
+// Andrew S. Ng
+// Created: 2021-04-13
+// 
+// For CS 321 DOS VGA Graphics
+// Rotating triangle program
+// to test 3D polygon drawing
+
 #include "vgaconst.h"
 #include "math3d.h"
 #include "polygon.h"

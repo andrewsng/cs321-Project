@@ -1,3 +1,10 @@
+// polygon.h
+// Andrew S. Ng
+// Created: 2021-04-01
+// 
+// For CS 321 DOS VGA Graphics
+// Header for Polygon types
+
 #ifndef POLYGON_H
 #define POLYGON_H
 

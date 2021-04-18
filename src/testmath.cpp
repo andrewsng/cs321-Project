@@ -1,3 +1,10 @@
+// testmath.cpp
+// Andrew S. Ng
+// Created: 2021-04-11
+// 
+// For CS 321 DOS VGA Graphics
+// Program to test 3D math constructs
+
 #include "math3d.h"
 #include <iostream>
 

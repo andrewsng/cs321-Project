@@ -1,3 +1,10 @@
+// polygon.cpp
+// Andrew S. Ng
+// Created: 2021-04-01
+// 
+// For CS 321 DOS VGA Graphics
+// Source for Polygon types
+
 #include "polygon.h"
 
 

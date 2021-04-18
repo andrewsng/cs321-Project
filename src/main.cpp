@@ -1,3 +1,10 @@
+// main.cpp
+// Andrew S. Ng
+// Created: 2021-03-27
+// 
+// For CS 321 DOS VGA Graphics
+// Program to test polygon filling
+
 #include "vgaconst.h"
 #include "polygon.h"
 #include "polyfill.h"

@@ -1,3 +1,10 @@
+// modes.cpp
+// Andrew S. Ng
+// Created: 2021-04-09
+// 
+// For CS 321 DOS VGA Graphics
+// Source for mode setting routines
+
 #include "vgaconst.h"
 #include "modes.h"
 #include "polyfill.h"

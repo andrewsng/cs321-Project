@@ -1,3 +1,10 @@
+// vgaconst.h
+// Andrew S. Ng
+// Created: 2021-04-11
+// 
+// For CS 321 DOS VGA Graphics
+// Header for common constant/global values
+
 #ifndef VGACONST_H
 #define VGACONST_H
 

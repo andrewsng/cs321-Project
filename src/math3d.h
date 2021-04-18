@@ -1,3 +1,10 @@
+// math3d.h
+// Andrew S. Ng
+// Created: 2021-04-11
+// 
+// For CS 321 DOS VGA Graphics
+// Header for 3D math constructs
+
 #ifndef MATH3D_H
 #define MATH3D_H
 
