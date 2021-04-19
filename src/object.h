@@ -18,6 +18,10 @@ class Face
 
 public:
     
+    Face(const std::vector<std::size_t> &indices, int color)
+        :_indices(indices), _color(color)
+    {}
+    
     int color() const { return _color; };
     
     std::size_t numIndices() const { return _indices.size(); }
@@ -37,6 +41,10 @@ class Object
 {
 
 public:
+    
+    Object(const std::vector<Vec4> &vertices, const std::vector<Face> &faces)
+        :_vertices(vertices), _faces(faces)
+    {}
     
     std::size_t numVertices() const { return _vertices.size(); }
     std::size_t numFaces() const { return _faces.size(); }
