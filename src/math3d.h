@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <cassert>
+#include <cmath>
 
 
 class Vec4
@@ -89,6 +90,13 @@ inline Mat4 operator*(const Mat4 &lhs, const Mat4 &rhs)
     }
     return result;
 }
+
+
+Mat4 appendRotationX(const Mat4 &transform, float angle);
+
+Mat4 appendRotationY(const Mat4 &transform, float angle);
+
+Mat4 appendRotationZ(const Mat4 &transform, float angle);
 
 
 #endif  // MATH3D_H
