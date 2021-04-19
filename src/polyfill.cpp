@@ -149,7 +149,7 @@ void drawScanlineList(const vector<Scanline> &scanlineList, int color, int yStar
 {
     uint8_t *screenPtr = (uint8_t *)SCREEN_ADR + __djgpp_conventional_base;
     screenPtr += yStart * SCREEN_WIDTH;
-    for (int y = 0; y < scanlineList.size(); ++y)
+    for (std::size_t y = 0; y < scanlineList.size(); ++y)
     {
         int width = scanlineList[y].xEnd - scanlineList[y].xStart + 1;
         if (width > 0)
@@ -373,7 +373,6 @@ std::vector<Point> transformAndProjectObject(const Mat4 &transform, const Object
             * projectionRatio * (SCREEN_WIDTH / 2.0f);
         auto projectedY = transformed[1] / transformed[2]
             * projectionRatio * (SCREEN_WIDTH / 2.0f);
-        auto projectedZ = transformed[2];
         
         projectedPoints[i].x =  int(std::floor(projectedX + 0.5f)) + (SCREEN_WIDTH / 2);
         projectedPoints[i].y = -int(std::floor(projectedY + 0.5f)) + (SCREEN_HEIGHT / 2);
