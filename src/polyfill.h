@@ -47,5 +47,7 @@ void transformAndDrawPoly(const Mat4 &transform, const std::vector<Vec4> &poly, 
 
 std::vector<Point> transformAndProjectObject(const Mat4 &transform, const Object &obj);
 
+void drawVisibleFaces(const Object &obj, const std::vector<Point> &projectedPoints);
+
 
 #endif  // POLYFILL_H
