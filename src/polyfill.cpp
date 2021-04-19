@@ -345,7 +345,7 @@ void transformAndDrawPoly(const Mat4 &transform, const vector<Vec4> &poly, int c
 {
     Polygon2D projectedPoly(poly.size());
 
-    for (int i = 0; i < projectedPoly.size(); ++i)
+    for (std::size_t i = 0; i < projectedPoly.size(); ++i)
     {
         Vec4 transformed = transform * poly[i];
 
@@ -357,4 +357,27 @@ void transformAndDrawPoly(const Mat4 &transform, const vector<Vec4> &poly, int c
     }
     
     fillConvexPolygon(projectedPoly, color, 0, 0);
+}
+
+
+std::vector<Point> transformAndProjectObject(const Mat4 &transform, const Object &obj)
+{
+    std::vector<Point> projectedPoints(obj.numVertices());
+
+    for (std::size_t i = 0; i < projectedPoints.size(); ++i)
+    {
+        Vec4 transformed = transform * obj.vertexAt(i);
+
+        const float projectionRatio = -2.0f;
+        auto projectedX = transformed[0] / transformed[2]
+            * projectionRatio * (SCREEN_WIDTH / 2.0f);
+        auto projectedY = transformed[1] / transformed[2] * -1.0f
+            * projectionRatio * (SCREEN_WIDTH / 2.0f);
+        auto projectedZ = transformed[2];
+        
+        projectedPoints[i].x =  int(std::floorf(projectedX + 0.5f)) + (SCREEN_WIDTH / 2);
+        projectedPoints[i].y = -int(std::floorf(projectedY + 0.5f)) + (SCREEN_HEIGHT / 2);
+    }
+    
+    return projectedPoints;
 }

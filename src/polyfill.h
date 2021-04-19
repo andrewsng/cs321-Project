@@ -9,6 +9,7 @@
 #define POLYFILL_H
 
 #include "polygon.h"
+#include "object.h"
 #include "math3d.h"
 
 #include <vector>
@@ -43,6 +44,8 @@ void drawPixelX(int x, int y, unsigned int pageBase, int color);
 bool fillConvexPolygon(const Polygon2D &poly, int color, int xOffset, int yOffset);
 
 void transformAndDrawPoly(const Mat4 &transform, const std::vector<Vec4> &poly, int color);
+
+std::vector<Point> transformAndProjectObject(const Mat4 &transform, const Object &obj);
 
 
 #endif  // POLYFILL_H
