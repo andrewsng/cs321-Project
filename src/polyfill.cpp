@@ -381,3 +381,27 @@ std::vector<Point> transformAndProjectObject(const Mat4 &transform, const Object
     
     return projectedPoints;
 }
+
+
+void drawVisibleFaces(const Object &obj, const std::vector<Point> &projectedPoints)
+{
+    for (std::size_t faceId = 0; faceId < obj.numFaces(); ++faceId)
+    {
+        const Face &currentFace = obj.faceAt(faceId);
+        Polygon2D projectedPoly(currentFace.numIndices());
+        for (std::size_t i = 0; i < projectedPoly.size(); ++i)
+        {
+            projectedPoly[i] = projectedPoints[currentFace[i]];
+        }
+        
+        auto v0 = projectedPoly[1].x - projectedPoly[0].x;
+        auto v1 = projectedPoly[1].y - projectedPoly[0].y;
+        auto w0 = projectedPoly[projectedPoly.size()-1].x - projectedPoly[0].x;
+        auto w1 = projectedPoly[projectedPoly.size()-1].y - projectedPoly[0].y;
+        if ((v0*w1 - v1*w0) > 0)
+        {
+            fillConvexPolygon(projectedPoly, currentFace.color(), 0, 0);
+        }
+    }
+}
+

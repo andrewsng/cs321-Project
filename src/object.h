@@ -17,6 +17,13 @@ class Face
 {
 
 public:
+    
+    int color() const { return _color; };
+    
+    std::size_t numIndices() const { return _indices.size(); }
+
+    std::size_t &operator[](std::size_t index) { return _indices[index]; };
+    const std::size_t &operator[](std::size_t index) const { return _indices[index]; };
 
 private:
     
@@ -32,9 +39,13 @@ class Object
 public:
     
     std::size_t numVertices() const { return _vertices.size(); }
+    std::size_t numFaces() const { return _faces.size(); }
     
     Vec4 &vertexAt(std::size_t index) { return _vertices[index]; };
     const Vec4 &vertexAt(std::size_t index) const { return _vertices[index]; };
+
+    Face &faceAt(std::size_t index) { return _faces[index]; };
+    const Face &faceAt(std::size_t index) const { return _faces[index]; };
 
 private:
     
