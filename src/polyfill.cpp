@@ -4,6 +4,10 @@
 // 
 // For CS 321 DOS VGA Graphics
 // Source for polygon filling routines
+//
+// Algorithms from Graphics Programming
+//   Black Book by Michael Abrash:
+//   https://www.jagregory.com/abrash-black-book/
 
 #include "polyfill.h"
 #include "vgaconst.h"
