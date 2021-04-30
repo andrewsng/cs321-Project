@@ -43,12 +43,6 @@ int main()
     int displayedPage = 0;
     int nonDisplayedPage = 0;
 
-    // setMode13h();
-    
-    // fillConvexPolygon(t1, green, 0, 0);
-    // fillConvexPolygon(t2, purple, 0, 0);
-    // getchar();
-
     setModeX();
     showPage(pageStartOffsets[displayedPage]);
     
